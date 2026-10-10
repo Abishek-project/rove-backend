@@ -4,7 +4,8 @@ import { AppModule } from '../app.module';
 import { AppException } from '../common/errors/app-exception';
 import { KYSELY } from '../database/database';
 import type { Db } from '../database/database';
-import { AdminPartnersQuery, AdminService, AdminVehiclesQuery, DocKind } from '../modules/admin/admin.service';
+import { AdminPartnersQuery, AdminVehiclesQuery } from '../modules/admin/admin.dto';
+import { AdminService, DocKind } from '../modules/admin/admin.service';
 import { ExpiryService } from '../modules/bookings/expiry';
 
 /**

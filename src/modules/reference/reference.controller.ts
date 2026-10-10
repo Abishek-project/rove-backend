@@ -1,20 +1,9 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsIn, IsOptional, IsUUID } from 'class-validator';
 import { Public } from '../../common/auth/auth';
+import { LocationsQuery } from './reference.dto';
 import { InjectDb } from '../../database/database';
 import type { Db } from '../../database/database';
-
-export class LocationsQuery {
-  @Transform(({ value }: { value: unknown }) => (typeof value === 'string' ? value.toUpperCase() : value))
-  @IsIn(['AE', 'IN'])
-  countryCode: string;
-
-  @IsOptional()
-  @IsUUID()
-  cityId?: string;
-}
 
 export interface CityDto {
   id: string;

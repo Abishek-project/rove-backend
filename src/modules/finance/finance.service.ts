@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Transform } from 'class-transformer';
-import { IsIn, IsISO8601, IsOptional } from 'class-validator';
 import { sql } from 'kysely';
 import type { PartnerMembership } from '../../common/auth/auth';
 import { AppException } from '../../common/errors/app-exception';
-import { Page, PageQuery, WithMeta } from '../../common/http/page';
+import { Page, WithMeta } from '../../common/http/page';
+import type { EarningsExportQuery, EarningsQuery, PayoutsQuery, PeriodQuery } from './finance.dto';
 import { InjectDb } from '../../database/database';
 import type { Db, DbOrTx } from '../../database/database';
 import { Money, money } from '../../domain/money';
@@ -12,34 +11,6 @@ import { bookingQuery, BookingViews } from '../bookings/booking-views';
 import { ExpiryService } from '../bookings/expiry';
 import { addDays, todayUtc } from '../shared/documents';
 import { shiftDate, zonedStartOfDay, zonedToday } from '../../domain/zoned-dates';
-
-const upper = ({ value }: { value: unknown }) => (typeof value === 'string' ? value.trim().toUpperCase() : value);
-
-export class PeriodQuery {
-  @IsOptional() @IsISO8601({ strict: true }) from?: string;
-  @IsOptional() @IsISO8601({ strict: true }) to?: string;
-}
-
-export class EarningsQuery extends PageQuery {
-  @IsOptional() @IsISO8601({ strict: true }) from?: string;
-  @IsOptional() @IsISO8601({ strict: true }) to?: string;
-  @IsOptional() @Transform(upper) @IsIn(['AED', 'INR']) currency?: string;
-}
-
-export class EarningsExportQuery {
-  @IsOptional() @IsISO8601({ strict: true }) from?: string;
-  @IsOptional() @IsISO8601({ strict: true }) to?: string;
-  @IsOptional() @Transform(upper) @IsIn(['AED', 'INR']) currency?: string;
-}
-
-export class PayoutsQuery extends PageQuery {
-  @IsOptional()
-  @IsIn(['pending', 'processing', 'paid', 'failed'])
-  status?: string;
-  @IsOptional() @IsISO8601({ strict: true }) from?: string;
-  @IsOptional() @IsISO8601({ strict: true }) to?: string;
-  @IsOptional() @Transform(upper) @IsIn(['AED', 'INR']) currency?: string;
-}
 
 /**
  * CONTRACTS v1.2: `from`/`to` are inclusive `YYYY-MM-DD` dates in the partner country's timezone

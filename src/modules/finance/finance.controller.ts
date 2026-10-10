@@ -4,7 +4,8 @@ import type { Response } from 'express';
 import { CurrentPartner, PartnerRoute } from '../../common/auth/auth';
 import type { PartnerMembership } from '../../common/auth/auth';
 import { RawResponse } from '../../common/http/envelope.interceptor';
-import { EarningsExportQuery, EarningsQuery, FinanceService, PayoutsQuery, PeriodQuery } from './finance.service';
+import { EarningsExportQuery, EarningsQuery, PayoutsQuery, PeriodQuery } from './finance.dto';
+import { FinanceService } from './finance.service';
 
 @ApiTags('partner: overview & financials')
 @ApiBearerAuth()

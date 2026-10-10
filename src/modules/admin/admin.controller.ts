@@ -7,12 +7,11 @@ import {
   AdminOptionalReasonDto,
   AdminPartnersQuery,
   AdminReasonDto,
-  AdminService,
   AdminVehiclesQuery,
-  DocKind,
   GeneratePayoutsDto,
   MarkPaidDto,
-} from './admin.service';
+} from './admin.dto';
+import { AdminService, DocKind } from './admin.service';
 
 enum DocKindParam {
   partner = 'partner',
