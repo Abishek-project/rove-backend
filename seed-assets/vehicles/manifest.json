@@ -1,4 +1,196 @@
 {
   "$comment": "Real vehicle photos for the seed. Each entry: { file, photoUrl, photographer, photographerUrl }. Only photos under the free Unsplash License (unsplash.com/photos/..., never plus.unsplash.com). Files live next to this manifest (~1600px JPEG). Vehicles without entries fall back to the generated illustrations. Run `npm run seed:credits` after editing.",
-  "vehicles": {}
+  "vehicles": {
+    "ae_golf": [
+      {
+        "file": "ae-golf-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/54tC25jNoWA",
+        "photographer": "Chris Osmond"
+      }
+    ],
+    "ae_mini": [
+      {
+        "file": "ae-mini-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/eExAPOrIacw",
+        "photographer": "Faseeh Fawaz"
+      }
+    ],
+    "ae_5series": [
+      {
+        "file": "ae-5series-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/JKBS7Tds41o",
+        "photographer": "Anne Nygard"
+      }
+    ],
+    "ae_cls": [
+      {
+        "file": "ae-cls-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/FMbWFDiVRPs",
+        "photographer": "Samuele Errico Piccarini"
+      }
+    ],
+    "ae_range_rover": [
+      {
+        "file": "ae-range-rover-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/Ho98UeVC_nQ",
+        "photographer": "Sam Pearce Warrilow"
+      },
+      {
+        "file": "ae-range-rover-2.jpg",
+        "photoUrl": "https://unsplash.com/photos/6XeVLIVbbpg",
+        "photographer": "Samuel Thompson"
+      }
+    ],
+    "ae_g63": [
+      {
+        "file": "ae-g63-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/CwTW5rYJsOI",
+        "photographer": "Rana Singh"
+      },
+      {
+        "file": "ae-g63-2.jpg",
+        "photoUrl": "https://unsplash.com/photos/BzFapQM9V9w",
+        "photographer": "Alexis Amz Da Cruz"
+      }
+    ],
+    "ae_cullinan": [
+      {
+        "file": "ae-cullinan-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/KnnzAtox5OA",
+        "photographer": "Christian Agbede"
+      },
+      {
+        "file": "ae-cullinan-2.jpg",
+        "photoUrl": "https://unsplash.com/photos/aGOePWYd4Ww",
+        "photographer": "Nejc Soklic"
+      }
+    ],
+    "ae_ghost": [
+      {
+        "file": "ae-ghost-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/AUJ5lOMUlnY",
+        "photographer": "Johnathan Mark"
+      }
+    ],
+    "ae_urus": [
+      {
+        "file": "ae-urus-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/qoZSYNBvIxg",
+        "photographer": "Samuel Hagger"
+      },
+      {
+        "file": "ae-urus-2.jpg",
+        "photoUrl": "https://unsplash.com/photos/hVld5nXY-Ok",
+        "photographer": "Cristian Musolino"
+      }
+    ],
+    "ae_911": [
+      {
+        "file": "ae-911-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/W_KBaP9Q9fQ",
+        "photographer": "Eric Soubeyrand De Saint Prix"
+      },
+      {
+        "file": "ae-911-2.jpg",
+        "photoUrl": "https://unsplash.com/photos/u1r8v9OokDo",
+        "photographer": "Christian Lue"
+      }
+    ],
+    "ae_taycan": [
+      {
+        "file": "ae-taycan-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/BFLzerr6iuQ",
+        "photographer": "Maximalfocus"
+      }
+    ],
+    "in_mini": [
+      {
+        "file": "in-mini-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/BEyZXjl3c5Y",
+        "photographer": "Jeswin Thomas"
+      }
+    ],
+    "in_cla": [
+      {
+        "file": "in-cla-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/SVRpPD2p0RQ",
+        "photographer": "Kai Winckler"
+      }
+    ],
+    "in_3series": [
+      {
+        "file": "in-3series-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/My-aglW4BhM",
+        "photographer": "Alexandr Bendus"
+      }
+    ],
+    "in_a5": [
+      {
+        "file": "in-a5-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/a0SRjVsk7Jg",
+        "photographer": "Miles Loewen"
+      }
+    ],
+    "in_x5": [
+      {
+        "file": "in-x5-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/rKkyJ8goPqA",
+        "photographer": "Dekler Ph"
+      }
+    ],
+    "in_rr_sport": [
+      {
+        "file": "in-rr-sport-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/qWjr0ozbGzo",
+        "photographer": "Robin Le Mee"
+      },
+      {
+        "file": "in-rr-sport-2.jpg",
+        "photoUrl": "https://unsplash.com/photos/pnBXlOARJdQ",
+        "photographer": "Robin Le Mee"
+      }
+    ],
+    "in_defender": [
+      {
+        "file": "in-defender-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/J5EN6ESWoHg",
+        "photographer": "Rana Singh"
+      }
+    ],
+    "in_sclass": [
+      {
+        "file": "in-sclass-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/y3neNkE6efI",
+        "photographer": "Martin Katler"
+      }
+    ],
+    "in_cullinan": [
+      {
+        "file": "in-cullinan-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/wpif7QTHjng",
+        "photographer": "Mathis Mauprivez"
+      }
+    ],
+    "in_huracan": [
+      {
+        "file": "in-huracan-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/AvjRe7jM6-c",
+        "photographer": "Noir"
+      }
+    ],
+    "in_taycan": [
+      {
+        "file": "in-taycan-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/f0_b39sYkjw",
+        "photographer": "Roberto H"
+      }
+    ],
+    "in_i4": [
+      {
+        "file": "in-i4-1.jpg",
+        "photoUrl": "https://unsplash.com/photos/G4J7pXF8Rqw",
+        "photographer": "Nils Limp"
+      }
+    ]
+  }
 }

@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import type { Db } from '../src/database/database';
-import { seedId } from '../src/seed/data';
+import { seedId, VEHICLES } from '../src/seed/data';
 import { ACCOUNTS, api, createApp, pdfDoc, tokenFor } from './helpers';
 
 describe('Partner isolation (e2e)', () => {
@@ -9,7 +9,7 @@ describe('Partner isolation (e2e)', () => {
   let a: ReturnType<typeof api>;
   let ae: string;
   let inTok: string;
-  const inVehicle = seedId('vehicle:in_city');
+  const inVehicle = seedId('vehicle:in_3series');
   const inPartner = seedId('partner:mumbai_motors');
 
   beforeAll(async () => {
@@ -60,7 +60,7 @@ describe('Partner isolation (e2e)', () => {
     await a.get(`/partner/vehicles/${inVehicle}/documents/${doc.id}/url`, ae).expect(404);
     // Still untouched for its owner.
     const own = await a.get(`/partner/vehicles/${inVehicle}`, inTok).expect(200);
-    expect(own.body.data.dailyRateMinor).toBe(320000);
+    expect(own.body.data.dailyRateMinor).toBe(VEHICLES.find((v) => v.key === 'in_3series')!.dailyRate * 100);
   });
 
   it("partner A cannot read or act on partner B's bookings or documents", async () => {

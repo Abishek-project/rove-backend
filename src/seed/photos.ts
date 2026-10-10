@@ -9,7 +9,8 @@ export interface PhotoCredit {
   file: string;
   photoUrl: string;
   photographer: string;
-  photographerUrl: string;
+  /** Optional: Unsplash profile pages are bot-protected, so the photo page URL is the primary credit link. */
+  photographerUrl?: string;
 }
 
 export interface Manifest {
@@ -35,8 +36,8 @@ export function loadManifest(): Manifest {
         problems.push(`${where}: photoUrl must be a free-licence https://unsplash.com/photos/… page (no Unsplash+)`);
       }
       if (!p.photographer?.trim()) problems.push(`${where}: photographer is required`);
-      if (!PROFILE_URL.test(p.photographerUrl ?? ''))
-        problems.push(`${where}: photographerUrl must be https://unsplash.com/@…`);
+      if (p.photographerUrl !== undefined && !PROFILE_URL.test(p.photographerUrl))
+        problems.push(`${where}: photographerUrl, when given, must be https://unsplash.com/@…`);
     }
   }
   if (problems.length) throw new Error(`Invalid seed photo manifest:\n  - ${problems.join('\n  - ')}`);
@@ -88,7 +89,7 @@ export function creditsMarkdown(manifest: Manifest, labels: Record<string, strin
   for (const k of keys) {
     for (const p of manifest.vehicles[k]) {
       lines.push(
-        `| ${labels[k] ?? k} | \`${p.file}\` | [Unsplash](${p.photoUrl}) | Photo by [${p.photographer}](${p.photographerUrl}) on Unsplash |`,
+        `| ${labels[k] ?? k} | \`${p.file}\` | [Unsplash](${p.photoUrl}) | Photo by ${p.photographerUrl ? `[${p.photographer}](${p.photographerUrl})` : p.photographer} on Unsplash |`,
       );
     }
   }
