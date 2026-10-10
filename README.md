@@ -1,5 +1,7 @@
 # Rove backend
 
+> Part of **Rove**: [backend (NestJS)](https://github.com/Abishek-project/rove-backend) · [partner dashboard (React)](https://github.com/Abishek-project/rove-partner-dashboard) · [customer app (Flutter)](https://github.com/Abishek-project/rove-customer-app)
+
 The API for **Rove**, a car rental marketplace for India (INR) and the UAE (AED). It serves the Flutter customer app and the React partner dashboard.
 
 - **NestJS 11** + TypeScript (strict), REST under `/api/v1`
@@ -7,7 +9,7 @@ The API for **Rove**, a car rental marketplace for India (INR) and the UAE (AED)
 - **Kysely** typed SQL over `pg`; migrations are plain SQL in `supabase/migrations`
 - Mock payments behind a `PaymentProvider` interface, so Stripe can be added later
 
-The binding API contract is [`../shared/CONTRACTS.md`](../shared/CONTRACTS.md). Interactive docs run at **http://localhost:4000/api/docs**, and the OpenAPI JSON at `/api/docs-json`.
+The binding API contract is [`docs/CONTRACTS.md`](docs/CONTRACTS.md). Interactive docs run at **http://localhost:4000/api/docs**, and the OpenAPI JSON at `/api/docs-json`.
 
 ---
 
