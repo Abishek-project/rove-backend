@@ -388,6 +388,7 @@ export class BookingsService {
             status: 'requires_confirmation',
             amount_minor: price.totalMinor,
             currency: quote.currency,
+            client_secret: intent.clientSecret,
           })
           .execute();
         await recordEvent(trx, {

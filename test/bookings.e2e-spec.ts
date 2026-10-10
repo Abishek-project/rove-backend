@@ -86,6 +86,14 @@ describe('Bookings (e2e)', () => {
       reference: expect.stringMatching(/^RV-[A-Z0-9]{6}$/),
     });
     expect(booking.allowedActions).toEqual(['pay', 'cancel', 'contact_support']);
+    // CONTRACTS v1.3: the open intent is resumable from the booking itself.
+    expect(booking.payment).toEqual({ ...payment, status: 'requires_confirmation' });
+    const resumed = await a.get(`/bookings/${booking.id}`, customer).expect(200);
+    expect(resumed.body.data.payment).toMatchObject({
+      intentId: payment.intentId,
+      clientSecret: payment.clientSecret,
+      amount: payment.amount,
+    });
     expect(payment).toMatchObject({
       provider: 'mock',
       status: 'requires_confirmation',
@@ -123,6 +131,7 @@ describe('Bookings (e2e)', () => {
     expect(paid.body.data).toMatchObject({ status: 'pending_partner', paymentStatus: 'authorized' });
     expect(paid.body.data.partnerResponseDueAt).toBeTruthy();
     expect(paid.body.data.allowedActions).toEqual(['cancel', 'contact_support']);
+    expect(paid.body.data.payment).toBeNull();
     const paidReplay = await a
       .post(`/bookings/${booking.id}/payment/confirm`, customer)
       .set('Idempotency-Key', payKey)
@@ -150,6 +159,7 @@ describe('Bookings (e2e)', () => {
     });
     const pb = await a.get(`/partner/bookings/${booking.id}`, partner).expect(200);
     expect(pb.body.data.allowedActions).toEqual(['accept', 'reject', 'cancel']);
+    expect(pb.body.data).not.toHaveProperty('payment'); // never shown to partners
     expect(pb.body.data.customer.phone).toBeNull(); // not shared until confirmed
 
     // Accept (idempotent) → confirmed + captured.
@@ -322,8 +332,10 @@ describe('Bookings (e2e)', () => {
     expect(failed.body.error.code).toBe('PAYMENT_FAILED');
     expect(failed.body.error.details.booking).toMatchObject({ id: bookingId, status: 'held', paymentStatus: 'failed' });
     expect(failed.body.error.details.booking.allowedActions).toContain('pay');
+    expect(failed.body.error.details.booking.payment).toMatchObject({ intentId, status: 'failed' });
     const ok = await a.post(`/bookings/${bookingId}/payment/confirm`, customer).send({ intentId }).expect(200);
     expect(ok.body.data.status).toBe('confirmed');
+    expect(ok.body.data.payment).toBeNull();
   });
 
   it('hold expiry: lazily expires, blocks payment and frees the dates', async () => {

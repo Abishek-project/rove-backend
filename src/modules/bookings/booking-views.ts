@@ -260,6 +260,7 @@ export class BookingViews {
 
   async customerBooking(db: DbOrTx, b: BookingRow, now = new Date()) {
     const { x, body } = await this.base(db, b, false);
+    const allowedActions = customerAllowedActions(actionContext(b), now);
     return {
       ...body,
       driver: { fullName: b.driver_full_name, phone: b.driver_phone },
@@ -269,7 +270,28 @@ export class BookingViews {
         at: e.created_at.toISOString(),
         actorRole: e.actor_role,
       })),
-      allowedActions: customerAllowedActions(actionContext(b), now),
+      // CONTRACTS v1.3: the open intent while the customer can still pay (customer view only).
+      payment: allowedActions.includes('pay') ? await this.openIntent(db, b.id) : null,
+      allowedActions,
+    };
+  }
+
+  private async openIntent(db: DbOrTx, bookingId: string) {
+    const p = await db
+      .selectFrom('payments')
+      .select(['provider', 'provider_reference', 'client_secret', 'amount_minor', 'currency', 'status'])
+      .where('booking_id', '=', bookingId)
+      .where('kind', '=', 'rental')
+      .where('status', 'in', ['requires_confirmation', 'failed'])
+      .orderBy('created_at', 'desc')
+      .executeTakeFirst();
+    if (!p) return null;
+    return {
+      provider: p.provider,
+      intentId: p.provider_reference,
+      clientSecret: p.client_secret,
+      amount: money(p.amount_minor, p.currency),
+      status: p.status,
     };
   }
 

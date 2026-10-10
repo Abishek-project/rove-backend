@@ -18,7 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
-    "db:types": "kysely-codegen --dialect postgres --include-pattern \"public.*\" --date-parser string --numeric-parser number --out-file src/database/db.types.ts",
+    "db:types": "kysely-codegen --dialect postgres --include-pattern \"public.*\" --date-parser string --numeric-parser number --out-file src/database/db.types.ts && prettier --write src/database/db.types.ts",
     "seed": "ts-node --transpile-only src/seed/seed.ts",
     "admin": "ts-node --transpile-only src/cli/admin.ts",
     "db:start": "supabase start",

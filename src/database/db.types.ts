@@ -264,6 +264,7 @@ export interface Partners {
 export interface Payments {
   amount_minor: number;
   booking_id: string;
+  client_secret: string | null;
   created_at: Generated<Timestamp>;
   currency: string;
   failure_reason: string | null;
