@@ -191,18 +191,18 @@ CI (`.github/workflows/ci.yml`) runs lint, typecheck, build and unit tests on ev
 
 ## Seed images & credits
 
-By default every seeded vehicle gets two locally generated illustrations (SVG → JPEG with `sharp`). Real photos can replace them
-without code changes:
+All 23 seeded vehicles use real photos from Unsplash (free Unsplash License, listed in `seed-assets/vehicles/manifest.json`).
+A vehicle without manifest entries falls back to two locally generated illustrations (SVG → JPEG with `sharp`). To add or change photos:
 
 1. Put ~1600 px JPEGs in `seed-assets/vehicles/` (free **Unsplash License** photos only; never Unsplash+ / `plus.unsplash.com`).
-2. List them per vehicle key (see `src/seed/data.ts`, e.g. `ae_camry`) in `seed-assets/vehicles/manifest.json`:
+2. List them per vehicle key (see `src/seed/data.ts`, e.g. `ae_911`) in `seed-assets/vehicles/manifest.json`:
    ```json
-   { "vehicles": { "ae_camry": [
-     { "file": "ae_camry-1.jpg", "photoUrl": "https://unsplash.com/photos/<id>",
-       "photographer": "Jane Doe", "photographerUrl": "https://unsplash.com/@janedoe" }
+   { "vehicles": { "ae_911": [
+     { "file": "ae-911-1.jpg", "photoUrl": "https://unsplash.com/photos/<id>",
+       "photographer": "Jane Doe" }
    ] } }
    ```
-   The first file becomes the cover. The seed validates the manifest: the files must exist, the photo URL must be an `unsplash.com/photos/…` page, and the photographer profile is required.
+   The first file becomes the cover. The seed validates the manifest: the files must exist, the photo URL must be an `unsplash.com/photos/…` page, the photographer name is required, and `photographerUrl` (`https://unsplash.com/@…`) is optional. Download photos through `https://unsplash.com/photos/<id>/download` and keep only files served from `images.unsplash.com`.
 3. `npm run seed:credits` regenerates [`seed-assets/CREDITS.md`](seed-assets/CREDITS.md) ("Photo by X on Unsplash" for each image), then `npm run db:fresh` (or `npm run seed`) uploads the photos to `car-images` and replaces the illustrations.
 
 Credits for all photos in use are listed in [`seed-assets/CREDITS.md`](seed-assets/CREDITS.md).
