@@ -1,6 +1,9 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { createClient } from '@supabase/supabase-js';
+import { randomUUID } from 'crypto';
 import sharp from 'sharp';
+import WebSocket from 'ws';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { configureApp } from '../src/app.setup';
@@ -30,6 +33,28 @@ export async function createApp(): Promise<{ app: INestApplication; db: Db }> {
 }
 
 const tokenCache = new Map<string, string>();
+
+/** Email domain/prefix for throwaway users; test/cleanup.ts deletes them. */
+export const E2E_USER_PREFIX = 'e2e-';
+
+/**
+ * A brand-new signed-in user (no profile details, no partner, no documents), created through the
+ * Supabase admin API so tests never mutate the shared seeded accounts other agents are using.
+ */
+export async function freshUserToken(): Promise<string> {
+  const admin = createClient(process.env.SUPABASE_URL as string, process.env.SUPABASE_SERVICE_ROLE_KEY as string, {
+    auth: { persistSession: false },
+    realtime: { transport: WebSocket as never },
+  });
+  const email = `${E2E_USER_PREFIX}${randomUUID().slice(0, 8)}@rove.test`;
+  const { error } = await admin.auth.admin.createUser({
+    email,
+    password: process.env.SEED_USER_PASSWORD,
+    email_confirm: true,
+  });
+  if (error) throw new Error(`createUser failed: ${error.message}`);
+  return tokenFor(email);
+}
 
 /** Real Supabase access token for a seeded user (password grant, like the dev login in the clients). */
 export async function tokenFor(email: string): Promise<string> {

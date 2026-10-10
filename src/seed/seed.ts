@@ -7,6 +7,7 @@ import { HOUR_MS } from '../domain/rental-dates';
 import { calculatePrice } from '../domain/pricing';
 import { loadCountries } from '../modules/catalog/catalog.service';
 import { cardPng, carSvg, samplePdf, specsSvg, svgToJpeg } from './assets';
+import { loadManifest, photosFor, SeedImage } from './photos';
 import { BOOKINGS, CITY, LOCATIONS, PARTNERS, PAYOUTS, seedId, seedReference, USERS, VEHICLES } from './data';
 
 const DAY = 24 * HOUR_MS;
@@ -200,7 +201,9 @@ async function seed(): Promise<void> {
         .execute();
     }
 
-    console.log('• vehicles + generated images');
+    const manifest = loadManifest();
+    let photoCount = 0;
+    console.log('• vehicles + images');
     const partnerCountry = new Map(PARTNERS.map((p) => [p.key, p.countryCode]));
     for (const [idx, v] of VEHICLES.entries()) {
       const id = seedId(`vehicle:${v.key}`);
@@ -251,43 +254,55 @@ async function seed(): Promise<void> {
         .onConflict((oc) => oc.column('id').doUpdateSet(values))
         .execute();
 
-      const images = [
-        await svgToJpeg(carSvg({ ...v })),
-        await svgToJpeg(
-          specsSvg({
-            make: v.make,
-            model: v.model,
-            hex: v.hex,
-            specs: [
-              `${v.seats} seats · ${v.doors} doors · ${v.luggage} bags`,
-              `${v.transmission === 'automatic' ? 'Automatic' : 'Manual'} · ${v.fuelType}`,
-              v.mileageLimit ? `${v.mileageLimit} km/day included` : 'Unlimited kilometres',
-              ...v.features.slice(0, 2),
-            ],
-          }),
-        ),
+      // Real photos from the manifest when available, otherwise generated illustrations.
+      const images: SeedImage[] = (await photosFor(manifest, v.key)) ?? [
+        { key: '0', ...(await svgToJpeg(carSvg({ ...v }))) },
+        {
+          key: '1',
+          ...(await svgToJpeg(
+            specsSvg({
+              make: v.make,
+              model: v.model,
+              hex: v.hex,
+              specs: [
+                `${v.seats} seats · ${v.doors} doors · ${v.luggage} bags`,
+                `${v.transmission === 'automatic' ? 'Automatic' : 'Manual'} · ${v.fuelType}`,
+                v.mileageLimit ? `${v.mileageLimit} km/day included` : 'Unlimited kilometres',
+                ...v.features.slice(0, 2),
+              ],
+            }),
+          )),
+        },
       ];
+      const imageIds = images.map((img) => seedId(`img:${v.key}:${img.key}`));
+      // Drop images from a previous seed run that are no longer part of the set (e.g. illustrations → photos).
+      const stale = await db
+        .deleteFrom('vehicle_images')
+        .where('vehicle_id', '=', id)
+        .where('id', 'not in', imageIds)
+        .returning('storage_path')
+        .execute();
+      if (stale.length) await admin.storage.from('car-images').remove(stale.map((s) => s.storage_path));
+      await db.updateTable('vehicle_images').set({ is_cover: false }).where('vehicle_id', '=', id).execute();
       for (const [i, img] of images.entries()) {
-        const imgId = seedId(`img:${v.key}:${i}`);
+        const imgId = imageIds[i];
         const path = `vehicles/${id}/${imgId}.jpg`;
         await upload(admin, 'car-images', path, img.buffer, 'image/jpeg');
+        const row = {
+          sort_order: i,
+          is_cover: i === 0,
+          content_type: 'image/jpeg',
+          size_bytes: img.buffer.length,
+          width: img.width,
+          height: img.height,
+        };
         await db
           .insertInto('vehicle_images')
-          .values({
-            id: imgId,
-            vehicle_id: id,
-            bucket: 'car-images',
-            storage_path: path,
-            sort_order: i,
-            is_cover: i === 0,
-            content_type: 'image/jpeg',
-            size_bytes: img.buffer.length,
-            width: img.width,
-            height: img.height,
-          })
-          .onConflict((oc) => oc.column('id').doNothing())
+          .values({ id: imgId, vehicle_id: id, bucket: 'car-images', storage_path: path, ...row })
+          .onConflict((oc) => oc.column('id').doUpdateSet(row))
           .execute();
       }
+      photoCount += manifest.vehicles[v.key]?.length ? 1 : 0;
       const docTypes = country === 'AE' ? ['mulkiya', 'insurance'] : ['registration_certificate', 'insurance'];
       for (const t of docTypes) {
         const docId = seedId(`vdoc:${v.key}:${t}`);
@@ -317,6 +332,7 @@ async function seed(): Promise<void> {
       }
     }
 
+    console.log(`  ${photoCount}/${VEHICLES.length} vehicles use real photos; the rest use generated illustrations`);
     console.log('• payouts');
     const lastMonthStart = new Date(now - 70 * DAY).toISOString().slice(0, 10);
     const lastMonthEnd = new Date(now - 35 * DAY).toISOString().slice(0, 10);

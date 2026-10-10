@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { SignJWT } from 'jose';
 import request from 'supertest';
 import type { Db } from '../src/database/database';
-import { ACCOUNTS, api, createApp, tokenFor } from './helpers';
+import { ACCOUNTS, api, createApp, freshUserToken, tokenFor } from './helpers';
 
 describe('Auth, roles & API conventions (e2e)', () => {
   let app: INestApplication;
@@ -79,7 +79,7 @@ describe('Auth, roles & API conventions (e2e)', () => {
   it('403 PARTNER_REQUIRED / FORBIDDEN / PARTNER_NOT_APPROVED', async () => {
     const customer = await tokenFor(ACCOUNTS.customer);
     expect((await a.get('/partner/profile', customer).expect(403)).body.error.code).toBe('PARTNER_REQUIRED');
-    expect((await a.get('/partner/vehicles', await tokenFor(ACCOUNTS.newPartner)).expect(403)).body.error.code).toBe(
+    expect((await a.get('/partner/vehicles', await freshUserToken()).expect(403)).body.error.code).toBe(
       'PARTNER_REQUIRED',
     );
     expect((await a.get('/admin/partners', customer).expect(403)).body.error.code).toBe('FORBIDDEN');

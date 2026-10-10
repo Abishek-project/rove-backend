@@ -1,7 +1,18 @@
 import { INestApplication } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import type { Db } from '../src/database/database';
-import { ACCOUNTS, api, book, createApp, createPublishedVehicle, fromNow, H, pngImage, tokenFor } from './helpers';
+import {
+  ACCOUNTS,
+  api,
+  book,
+  createApp,
+  createPublishedVehicle,
+  freshUserToken,
+  fromNow,
+  H,
+  pngImage,
+  tokenFor,
+} from './helpers';
 
 describe('Bookings (e2e)', () => {
   let app: INestApplication;
@@ -578,8 +589,8 @@ describe('Bookings (e2e)', () => {
       .send({ quoteId: q.body.data.id, driver: { ...driver, dateOfBirth: '1990-01-01' }, termsAccepted: true })
       .expect(409);
     expect(exp.body.error.code).toBe('QUOTE_EXPIRED');
-    // Unverified customer (newpartner has no profile/documents).
-    const fresh = await tokenFor(ACCOUNTS.newPartner);
+    // Unverified customer (a fresh user has no profile details or documents).
+    const fresh = await freshUserToken();
     const q2 = await a.post('/bookings/quote', fresh).send({ vehicleId, pickupAt, returnAt }).expect(200);
     const unverified = await a
       .post('/bookings', fresh)

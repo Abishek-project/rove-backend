@@ -130,6 +130,7 @@ The app validates its configuration at boot and refuses to start with a clear me
 | `npm run db:reset` / `db:fresh` | Re-apply migrations / plus seed |
 | `npm run db:types` | Regenerate `src/database/db.types.ts` from the live schema |
 | `npm run seed` | Idempotent seed |
+| `npm run seed:credits` | Regenerate `seed-assets/CREDITS.md` from the photo manifest |
 | `npm run admin -- <command>` | Admin CLI (below) |
 
 ### Admin CLI
@@ -185,6 +186,26 @@ The e2e suites (`test/*.e2e-spec.ts`) boot the real Nest app in-process with sup
 A global setup and teardown removes the data the suites create.
 
 CI (`.github/workflows/ci.yml`) runs lint, typecheck, build and unit tests on every push and PR.
+
+---
+
+## Seed images & credits
+
+By default every seeded vehicle gets two locally generated illustrations (SVG → JPEG with `sharp`). Real photos can replace them
+without code changes:
+
+1. Put ~1600 px JPEGs in `seed-assets/vehicles/` (free **Unsplash License** photos only; never Unsplash+ / `plus.unsplash.com`).
+2. List them per vehicle key (see `src/seed/data.ts`, e.g. `ae_camry`) in `seed-assets/vehicles/manifest.json`:
+   ```json
+   { "vehicles": { "ae_camry": [
+     { "file": "ae_camry-1.jpg", "photoUrl": "https://unsplash.com/photos/<id>",
+       "photographer": "Jane Doe", "photographerUrl": "https://unsplash.com/@janedoe" }
+   ] } }
+   ```
+   The first file becomes the cover. The seed validates the manifest: the files must exist, the photo URL must be an `unsplash.com/photos/…` page, and the photographer profile is required.
+3. `npm run seed:credits` regenerates [`seed-assets/CREDITS.md`](seed-assets/CREDITS.md) ("Photo by X on Unsplash" for each image), then `npm run db:fresh` (or `npm run seed`) uploads the photos to `car-images` and replaces the illustrations.
+
+Credits for all photos in use are listed in [`seed-assets/CREDITS.md`](seed-assets/CREDITS.md).
 
 ---
 

@@ -1,0 +1,4 @@
+{
+  "$comment": "Real vehicle photos for the seed. Each entry: { file, photoUrl, photographer, photographerUrl }. Only photos under the free Unsplash License (unsplash.com/photos/..., never plus.unsplash.com). Files live next to this manifest (~1600px JPEG). Vehicles without entries fall back to the generated illustrations. Run `npm run seed:credits` after editing.",
+  "vehicles": {}
+}

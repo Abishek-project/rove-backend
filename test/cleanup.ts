@@ -16,6 +16,10 @@ export default async function cleanup(): Promise<void> {
     auth: { persistSession: false },
     realtime: { transport: WebSocket as never },
   }).storage;
+  const auth = createClient(process.env.SUPABASE_URL as string, process.env.SUPABASE_SERVICE_ROLE_KEY as string, {
+    auth: { persistSession: false },
+    realtime: { transport: WebSocket as never },
+  }).auth.admin;
   try {
     const vehicles = await db
       .selectFrom('vehicles')
@@ -64,7 +68,14 @@ export default async function cleanup(): Promise<void> {
         eb.not(eb.exists(eb.selectFrom('bookings').select('id').whereRef('bookings.payout_id', '=', 'payouts.id'))),
       )
       .execute();
-    await db.deleteFrom('support_requests').where('subject', '=', 'Help please').execute();
+    // Throwaway users created by freshUserToken() (profiles cascade).
+    for (let page = 1; ; page++) {
+      const { data } = await auth.listUsers({ page, perPage: 1000 });
+      for (const u of data.users) {
+        if (u.email && /^e2e-[a-z0-9]+@rove\.test$/.test(u.email)) await auth.deleteUser(u.id);
+      }
+      if (data.users.length < 1000) break;
+    }
   } finally {
     await db.destroy();
   }

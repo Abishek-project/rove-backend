@@ -1,6 +1,16 @@
 import { INestApplication } from '@nestjs/common';
 import type { Db } from '../src/database/database';
-import { ACCOUNTS, api, createApp, createPublishedVehicle, DUBAI, pdfDoc, pngImage, tokenFor } from './helpers';
+import {
+  ACCOUNTS,
+  api,
+  createApp,
+  createPublishedVehicle,
+  DUBAI,
+  freshUserToken,
+  pdfDoc,
+  pngImage,
+  tokenFor,
+} from './helpers';
 
 describe('Uploads, partner vehicles, catalog & profile (e2e)', () => {
   let app: INestApplication;
@@ -215,7 +225,7 @@ describe('Uploads, partner vehicles, catalog & profile (e2e)', () => {
   });
 
   it('customer profile, verification documents and support', async () => {
-    const t = await tokenFor(ACCOUNTS.newPartner);
+    const t = await freshUserToken();
     await a.patch('/me', t).send({ fullName: 'Sam Patel', phone: '+919900011122', countryCode: 'IN' }).expect(200);
     const v = await a.get('/me/verification', t).expect(200);
     expect(v.body.data.requiredDocuments).toEqual([
@@ -240,13 +250,6 @@ describe('Uploads, partner vehicles, catalog & profile (e2e)', () => {
       .expect(201);
     expect(support.body.data.status).toBe('open');
     expect((await a.get('/support/requests', t).expect(200)).body.data[0].id).toBe(support.body.data.id);
-    // Reset for re-runs.
-    await db.deleteFrom('customer_documents').where('user_id', '=', me.body.data.user.id).execute();
-    await db
-      .updateTable('profiles')
-      .set({ full_name: 'Sam Patel', phone: null, country_code: null, verification_status: 'not_started' })
-      .where('user_id', '=', me.body.data.user.id)
-      .execute();
   });
 
   it('partner overview & payouts use partner-timezone dates', async () => {

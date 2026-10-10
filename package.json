@@ -26,7 +26,8 @@
     "db:reset": "supabase db reset",
     "db:fresh": "supabase db reset && npm run seed",
     "lint:fix": "eslint \"{src,test}/**/*.ts\" --fix",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "seed:credits": "ts-node --transpile-only src/seed/credits.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
