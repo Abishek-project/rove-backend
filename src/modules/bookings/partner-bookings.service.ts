@@ -98,12 +98,21 @@ export class PartnerBookingsService {
 
   async accept(m: PartnerMembership, userId: string, bookingId: string) {
     await this.db.transaction().execute((trx) => this.expiry.run({ bookingId }, trx));
-    await this.db.transaction().execute(async (trx) => {
+    const outcome = await this.db.transaction().execute(async (trx): Promise<'ok' | 'expired'> => {
       const b = await lockBooking(trx, bookingId, { partnerId: m.partnerId });
       if (b.status === 'expired') {
         throw new AppException('INVALID_STATE_TRANSITION', 'This request expired before it was accepted.', {
           status: b.status,
         });
+      }
+      // The deadline may have passed between the lazy expiry above and taking the row lock.
+      if (
+        b.status === 'pending_partner' &&
+        b.partner_response_due_at &&
+        b.partner_response_due_at.getTime() <= Date.now()
+      ) {
+        await this.expiry.run({ bookingId: b.id }, trx);
+        return 'expired';
       }
       const to = nextStatus(b.status as BookingStatus, 'partner_accepted', {
         actor: 'partner',
@@ -136,7 +145,13 @@ export class PartnerBookingsService {
         actorRole: 'partner',
         actorUserId: userId,
       });
+      return 'ok';
     });
+    if (outcome === 'expired') {
+      throw new AppException('INVALID_STATE_TRANSITION', 'This request expired before it was accepted.', {
+        status: 'expired',
+      });
+    }
     return this.views.partnerView(bookingId, m);
   }
 

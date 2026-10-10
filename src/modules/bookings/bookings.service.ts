@@ -422,7 +422,7 @@ export class BookingsService {
 
   async confirmPayment(auth: AuthUser, bookingId: string, dto: ConfirmPaymentDto) {
     await this.db.transaction().execute((trx) => this.expiry.run({ bookingId }, trx));
-    const failed = await this.db.transaction().execute(async (trx) => {
+    const outcome = await this.db.transaction().execute(async (trx): Promise<'ok' | 'failed' | 'expired'> => {
       const b = await lockBooking(trx, bookingId, { customerId: auth.userId });
       if (b.status === 'expired') throw new AppException('HOLD_EXPIRED');
       if (b.status !== 'held') {
@@ -433,6 +433,11 @@ export class BookingsService {
             status: b.status,
           },
         );
+      }
+      // The hold may have lapsed between the lazy expiry above and taking the row lock.
+      if (b.hold_expires_at && b.hold_expires_at.getTime() <= Date.now()) {
+        await this.expiry.run({ bookingId: b.id }, trx);
+        return 'expired';
       }
       const payment = await trx
         .selectFrom('payments')
@@ -472,7 +477,7 @@ export class BookingsService {
           actorRole: 'system',
           data: { reason: result.failureReason ?? 'failed' },
         });
-        return true;
+        return 'failed';
       }
 
       const to = nextStatus('held', 'payment_authorized', {
@@ -520,10 +525,11 @@ export class BookingsService {
         actorRole: 'system',
         data: { captured: to === 'confirmed', bookingMode: b.booking_mode },
       });
-      return false;
+      return 'ok';
     });
     const booking = await this.views.customerView(bookingId, auth.userId);
-    if (failed) {
+    if (outcome === 'expired') throw new AppException('HOLD_EXPIRED');
+    if (outcome === 'failed') {
       throw new AppException(
         'PAYMENT_FAILED',
         'Your payment was declined. You can try again before your hold expires.',
