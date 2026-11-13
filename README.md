@@ -1,6 +1,6 @@
 # Rove backend
 
-> Part of **Rove**: [backend (NestJS)](https://github.com/Abishek-project/rove-backend) · [partner dashboard (React)](https://github.com/Abishek-project/rove-partner-dashboard) · [customer app (Flutter)](https://github.com/Abishek-project/rove-customer-app)
+> Part of **Rove**: [backend (NestJS)](https://github.com/Abishek-project/rove-backend) · [partner dashboard (React)](https://github.com/Abishek-project/rove-partner-dashboard) · [customer app (Flutter)](https://github.com/Abishek-project/rove-customer-app) · [project overview](docs/OVERVIEW.md)
 
 The API for **Rove**, a car rental marketplace for India (INR) and the UAE (AED). It serves the Flutter customer app and the React partner dashboard.
 
